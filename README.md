@@ -1,4 +1,4 @@
-# dsh-sandbox-escalation-fix (DSH 0.1.5-rc.2 supported, Win & Linux & macOS)
+# dsh-sandbox-escalation-fix (DSH 0.1.6-alpha.1 supported, Win & Linux & macOS)
 
 English | [简体中文](README.zh.md)
 
@@ -6,10 +6,10 @@ English | [简体中文](README.zh.md)
 > This is an independent community plugin. It is not published, maintained, or endorsed by DeepSeek, and it does not modify DeepSeek Harness core packages.
 
 > [!CAUTION]
-> The DSH official team has made some improvements spanning from `DSH 0.1.0-rc8` through `0.1.5-rc.2`, but still uses registry-global escalation schemas and execution-time validation. **Users should first observe the built-in behavior and install this plugin only after reproducing the same-mode escalation, blank justification, or retry-loop failures described below.**
+> The DSH official team has made some improvements spanning from `DSH 0.1.0-rc8` through `0.1.6-alpha.1`, but still uses registry-global escalation schemas and execution-time validation. **Users should first observe the built-in behavior and install this plugin only after reproducing the same-mode escalation, blank justification, or retry-loop failures described below.**
 
 > Currently supported:<br>
-> Latest supported DSH version: `0.1.5-rc.2` (full list in [Compatibility](#compatibility))<br>
+> Latest supported DSH version: `0.1.6-alpha.1` (full list in [Compatibility](#compatibility))<br>
 > Desktop version: `2.0.3`<br>
 > OS: `Windows` & `Linux`  & `macOS` (theoretically supported, not yet tested)
 >  
@@ -135,7 +135,7 @@ dsh plugin --profile headless add dsh-sandbox-escalation-fix@next
 To pin the exact version instead of following the tag:
 
 ```sh
-dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.5-rc2-win-linux
+dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.6-alpha1-win-linux
 ```
 
 The npm package and the `.tgz` inside the GitHub Release ZIP come from the same build, so they behave identically. Restart DSH after installation.
@@ -384,7 +384,7 @@ The plugin listens to Agent creation, disposal, Preset changes, restrictions, an
 
 ### It won't lock you to a single DSH release
 
-The plugin supports DSH `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, and `0.1.5-rc.2`. At startup it verifies that the installed `@deepseek-ai/dsh-*` packages are consistent and supported. Incompatible tool definitions fail explicitly instead of producing silent misbehavior.
+The plugin supports DSH `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, `0.1.5-rc.2`, and `0.1.6-alpha.1`. At startup it verifies that the installed `@deepseek-ai/dsh-*` packages are consistent and supported. Incompatible tool definitions fail explicitly instead of producing silent misbehavior.
 
 ### It won't add configuration burden
 

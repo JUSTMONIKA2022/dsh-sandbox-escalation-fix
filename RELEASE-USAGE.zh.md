@@ -1,10 +1,10 @@
-# dsh-sandbox-escalation-fix 0.1.5-rc2-win-linux 使用说明
+# dsh-sandbox-escalation-fix 0.1.6-alpha1-win-linux 使用说明
 
 ## 版本内容
 
-- 支持 DSH `0.1.5-rc.2`。官方 `0.1.5-rc.2` 与 `0.1.5-rc.1` 的 15 个插件相关发布包除 `package.json` 外逐字节一致（各 228 个文件、0 处差异）；`package.json` 也只是把各包依赖范围同步提升到 `^0.1.5-rc.2`，没有 `exports`、`main`、`types`、`files` 等结构性变化；沙箱升级 Schema 与执行期校验未改动，插件核心逻辑无需修改。
+- 支持 DSH `0.1.6-alpha.1`。官方该版本将 `dsh-code-runtime` 不兼容地迁移为 `dsh-ptc-runtime`，重构了 Agent 创建为异步串行初始化、调整了 PTC 和沙箱后端接口；插件依赖的 Agent 事件、工具包装、Sandbox Policy、静态升级 Schema 与执行期严格变宽校验仍保持兼容。
 - 本版继续保留 DSH `0.1.5-alpha.1` 兼容：官方该版本引入 Session V3、移除 `ctx.agent` 并调整 Inbox API；本插件不使用 `ctx.agent` 或 Inbox，依赖的 Agent Registry、工具包装、Sandbox Policy 与审批契约保持兼容。
-- 官方 `0.1.5-rc.2` 仍使用注册表全局静态升级 Schema 与执行期严格变宽校验；Sandbox、Sandbox Policy、Approval、Bash、Pwsh、Session Projection 与 Scope 的发布产物相对 `0.1.5-rc.1` 没有变化，因此本插件针对的问题仍可能出现。
+- 官方 `0.1.6-alpha.1` 仍使用注册表全局静态升级 Schema 与执行期严格变宽校验；本插件针对的根因问题在该版本中继续存在。
 - 完整真实 `0.1.5-rc.2` npm 包集下，40 项测试与 TypeScript 构建通过；插件核心 Supervisor、Wrapper、Schema 投影和参数正规化逻辑无需修改。
 - 正式支持 Linux：插件本体为纯 JavaScript、无平台限制；已在 Ubuntu 24.04 实机（Landlock 沙箱后端）完成安装、Schema 投影与沙箱/审批行为验证。`.sh` 脚本预期同样适用于 macOS，但尚未在真实 Mac 上测试。
 - 支持 DSH Desktop `2.0.3` 隐藏宿主包清单时的严格结构校验回退。

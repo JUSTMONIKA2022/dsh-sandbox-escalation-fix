@@ -1,4 +1,4 @@
-# dsh-sandbox-escalation-fix（已支持 0.1.5-rc.2，适配 Win & Linux & macOS）
+# dsh-sandbox-escalation-fix（已支持 0.1.6-alpha.1，适配 Win & Linux & macOS）
 
 [English](README.md) | 中文
 
@@ -6,10 +6,10 @@
 > 这是独立开发的社区插件，不是 DeepSeek 官方发布、维护或背书的插件。它不会修改 DeepSeek Harness 的核心代码。
 
 > [!CAUTION]
-> 官方从 DSH `0.1.0-rc8` 一直到 `0.1.5-rc.2` 已做部分改善，但仍使用注册表全局升级 Schema 和执行期校验。**建议用户先观察原生行为，仅在实际遇到本文所列的同模式升级、空 justification 或反复重试问题后再安装本插件。**
+> 官方从 DSH `0.1.0-rc8` 一直到 `0.1.6-alpha.1` 已做部分改善，但仍使用注册表全局升级 Schema 和执行期校验。**建议用户先观察原生行为，仅在实际遇到本文所列的同模式升级、空 justification 或反复重试问题后再安装本插件。**
 
-> 目前已支持的：<br>
->> 最新 DSH 版本：`0.1.5-rc.2`（完整列表见[支持范围](#支持范围)）<br>
+>> 已支持：<br>
+>> 最新 DSH 版本：`0.1.6-alpha.1`（完整列表见[支持范围](#支持范围)）<br>
 >> Desktop 版本：`2.0.3`<br>
 >> 操作系统：`Windows` & `Linux` & `macOS`（理论支持，未实测）
 >  
@@ -130,7 +130,7 @@ dsh plugin --profile headless add dsh-sandbox-escalation-fix@next
 如果希望锁定到当前具体版本，避免以后跟随标签更新：
 
 ```sh
-dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.5-rc2-win-linux
+dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.6-alpha1-win-linux
 ```
 
 npm Registry 上的包与 GitHub Release ZIP 内的 `.tgz` 来自同一次构建，内容一致。安装完成后重启 DSH。
@@ -715,7 +715,7 @@ import {
 ## 支持范围
 
 - Node.js `^22.19.0` 或 `>=24.0.0`
-- `@deepseek-ai/dsh-*` `0.1.0-rc.5`、`0.1.0-rc.6`、`0.1.0-rc.7`、`0.1.0-rc.8`、`0.1.1-rc.1`、`0.1.1-rc.2`、`0.1.2-alpha.1`、`0.1.2-alpha.2`、`0.1.2-alpha.3`、`0.1.2-alpha.4`、`0.1.2-alpha.5`、`0.1.2-rc.1`、`0.1.3-alpha.1`、`0.1.3-alpha.2`、`0.1.5-alpha.1`、`0.1.5-alpha.2`、`0.1.5-rc.1`、`0.1.5-rc.2`
+- `@deepseek-ai/dsh-*` `0.1.0-rc.5`、`0.1.0-rc.6`、`0.1.0-rc.7`、`0.1.0-rc.8`、`0.1.1-rc.1`、`0.1.1-rc.2`、`0.1.2-alpha.1`、`0.1.2-alpha.2`、`0.1.2-alpha.3`、`0.1.2-alpha.4`、`0.1.2-alpha.5`、`0.1.2-rc.1`、`0.1.3-alpha.1`、`0.1.3-alpha.2`、`0.1.5-alpha.1`、`0.1.5-alpha.2`、`0.1.5-rc.1`、`0.1.5-rc.2`、`0.1.6-alpha.1`
 - `@deepseek-ai/cordis` `^4.0.1`
 - 分发方式：公共 npm Registry（包名 `dsh-sandbox-escalation-fix`，预发布版位于 `next` 标签）、GitHub Release ZIP、本地 `.tgz`、本地目录或 Git Commit
 - 操作系统：Windows（完整支持）、Linux（已在 Ubuntu 24.04 实机验证）、macOS（预期兼容——插件为纯 JavaScript、`.sh` 脚本遵循 POSIX——但尚未在真实 Mac 上测试）。插件本体无平台相关代码；Linux/macOS 上沙箱的实际生效依赖 DSH 宿主可用的沙箱后端（Linux 为 `bwrap` 或启用了 Landlock 的内核 5.13+，macOS 为 Seatbelt），由 DSH 运行时自动探测；后端不可用时 DSH 会拒绝执行而不是绕过沙箱。插件的权限投影与参数正规化不依赖特定沙箱后端。

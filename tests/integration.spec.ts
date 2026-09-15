@@ -1,8 +1,8 @@
 import { Context } from '@deepseek-ai/cordis'
 import AgentRegistry from '@deepseek-ai/dsh-agent'
 import type { Agent } from '@deepseek-ai/dsh-agent'
-import { CodeRuntime } from '@deepseek-ai/dsh-code-runtime'
-import type { CodeRunRequest, CodeRunResult } from '@deepseek-ai/dsh-code-runtime'
+import { PtcRuntime } from '@deepseek-ai/dsh-ptc-runtime'
+import type { PtcRunRequest, PtcRunResult, PtcRunSpec } from '@deepseek-ai/dsh-ptc-runtime'
 import { HarnessError } from '@deepseek-ai/dsh-llm'
 import { ToolCallId } from '@deepseek-ai/dsh-llm/brand'
 import { escalationHintMarker, sandboxDenialMarker } from '@deepseek-ai/dsh-sandbox'
@@ -26,11 +26,21 @@ class FsDeniedError extends HarnessError {
   }
 }
 
-class FakeRuntime extends CodeRuntime {
+// 0.1.6-alpha.1 将旧 Code Runtime 迁移为 PTC Runtime；测试替身只提供 SDK 投影所需的最小服务契约，
+// 不模拟真实程序执行，避免把与插件无关的 PTC 后端细节耦合进沙箱升级测试。
+class FakeRuntime extends PtcRuntime {
   readonly language = 'typescript'
   readonly isolation = 'fake'
 
-  run(_request: CodeRunRequest): Promise<CodeRunResult> {
+  resolve(request: PtcRunRequest): PtcRunSpec {
+    return {
+      ...request,
+      cwd: request.cwd ?? process.cwd(),
+      timeoutMs: request.timeoutMs ?? null,
+    }
+  }
+
+  run(_spec: PtcRunSpec): Promise<PtcRunResult> {
     return Promise.resolve({ logs: [] })
   }
 }
@@ -91,7 +101,7 @@ async function harness(): Promise<{
   agent: Agent
   seen: unknown[]
   disposePlugin(): Promise<void>
-  disposeAgent(): void
+  disposeAgent(): Promise<void>
   replaceDelegate(name: string, definition: ToolDefinition): void
   removeDelegate(name: string): void
   createAgent(id: string): Promise<Agent>
@@ -118,7 +128,8 @@ async function harness(): Promise<{
   }, { inject: ['tools'] }))
 
   const agent = await scopedAgent(ctx, presetKey, 'agent')
-  const disposeAgent = ctx.agents.register(agent)
+  // alpha.1 的 agent/created 是异步串行初始化；等待注册完成后，Schema 与执行断言才能观察到已安装的包装器。
+  const disposeAgent = await ctx.agents.register(agent)
   return {
     ctx,
     agent,
@@ -155,7 +166,7 @@ async function registeredHarness(): Promise<{ ctx: Context; agent: Agent }> {
     status: 'idle' as const,
     ctx: new Context(),
   } as Agent
-  ctx.agents.register(agent)
+  await ctx.agents.register(agent)
   await ctx.plugin(Plugin)
   return { ctx, agent }
 }
@@ -335,7 +346,7 @@ describe('installed plugin', () => {
     const agent = await scopedAgent(ctx, presetKey, 'initially-restricted')
     const lift = agent.ctx.tools.restrict({ allow: ['bash'] })
 
-    ctx.agents.register(agent)
+    await ctx.agents.register(agent)
     expect(ctx.tools.get('pwsh', agent)).toBeUndefined()
 
     lift()
@@ -349,7 +360,7 @@ describe('installed plugin', () => {
   it('keeps dynamic restrictions isolated between agents', async () => {
     const { ctx, agent: first, createAgent } = await harness()
     const second = await createAgent('second-agent')
-    ctx.agents.register(second)
+    await ctx.agents.register(second)
 
     const lift = first.ctx.tools.restrict({ allow: ['bash'] })
 
@@ -416,7 +427,7 @@ describe('installed plugin', () => {
   it('removes exact-scope wrappers when the agent is disposed', async () => {
     const { ctx, agent, disposeAgent } = await harness()
 
-    disposeAgent()
+    await disposeAgent()
 
     expect(ctx.agents.get(agent.id)).toBeUndefined()
     const visible = ctx.tools.get('pwsh', agent) as ToolDefinition & {
@@ -459,7 +470,10 @@ describe('installed plugin', () => {
       inbox: {},
       status: 'idle' as const,
     }) as Agent
-    expect(() => ctx.agents.register(agent)).toThrow(/tool "pwsh" is already registered in this scope/)
+    // Cordis effect disposer 同时是可调用函数和自定义 Thenable；先同化为原生 Promise，
+    // 避免 Vitest 的 rejects 匹配器把可调用对象误判为已经同步完成。
+    await expect(Promise.resolve(ctx.agents.register(agent))).rejects
+      .toThrow(/tool "pwsh" is already registered in this scope/)
     await ctx.fiber.dispose()
   })
 

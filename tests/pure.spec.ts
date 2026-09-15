@@ -189,6 +189,10 @@ describe('execution compatibility', () => {
     // 升级 Schema、严格变宽校验与插件依赖的运行时契约均未变化，因此门禁直接放行。
     expect(() => validateDshVersionSet({ tools: '0.1.5-rc.2', sandbox: '0.1.5-rc.2' }))
       .not.toThrow()
+    // alpha.1 虽然重构了 Agent 创建时序、PTC Runtime 和沙箱后端接口，但插件依赖的 Agent 事件载荷、
+    // ToolRuntime waterfall、SandboxPolicy.resolve()、静态升级 Schema 与执行期严格变宽契约仍保持兼容。
+    expect(() => validateDshVersionSet({ tools: '0.1.6-alpha.1', sandbox: '0.1.6-alpha.1' }))
+      .not.toThrow()
     expect(() => validateDshVersionSet({ tools: '0.1.0-rc.5', sandbox: '0.1.0-rc.6' }))
       .toThrow(/mixed DSH package versions/)
     expect(() => validateDshVersionSet({ tools: '0.1.0-rc.9' }))
