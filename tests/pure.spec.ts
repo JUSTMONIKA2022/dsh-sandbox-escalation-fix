@@ -193,6 +193,11 @@ describe('execution compatibility', () => {
     // ToolRuntime waterfall、SandboxPolicy.resolve()、静态升级 Schema 与执行期严格变宽契约仍保持兼容。
     expect(() => validateDshVersionSet({ tools: '0.1.6-alpha.1', sandbox: '0.1.6-alpha.1' }))
       .not.toThrow()
+    // alpha.2 只让请求模式等于当前有效模式时直接返回，避免进入重复审批；注册表全局 Schema、固定升级目标词表、
+    // 真正升级时的执行期严格变宽校验，以及插件依赖的 Agent、Tools、Sandbox Policy 与 Pwsh 契约均未改变。
+    // 因此插件仍兼容且仍需按 Session 投影模型可见 Schema，版本门禁可以安全放行该完整同版本包集。
+    expect(() => validateDshVersionSet({ tools: '0.1.6-alpha.2', sandbox: '0.1.6-alpha.2' }))
+      .not.toThrow()
     expect(() => validateDshVersionSet({ tools: '0.1.0-rc.5', sandbox: '0.1.0-rc.6' }))
       .toThrow(/mixed DSH package versions/)
     expect(() => validateDshVersionSet({ tools: '0.1.0-rc.9' }))

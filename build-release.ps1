@@ -3,18 +3,19 @@ param()
 
 $ErrorActionPreference = 'Stop'
 Set-Location -LiteralPath $PSScriptRoot
-$releaseTarball = '.\release\dsh-sandbox-escalation-fix-0.1.6-alpha1-win-linux.tgz'
-$releaseZip = Join-Path $PSScriptRoot 'release\dsh-sandbox-escalation-fix-0.1.6-alpha1-win-linux-release.zip'
+$releaseTarball = '.\release\dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux.tgz'
+$releaseZip = Join-Path $PSScriptRoot 'release\dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux-release.zip'
 
 # 直接使用 npm pack 根据 package.json 生成标准包名，避免依赖不同 PowerShell 版本的 JSON 对象适配行为。
 # 构建前清理旧 tarball 和本版本 ZIP，确保后续校验对应本次新生成的唯一产物。
 Remove-Item -Path '.\release\dsh-sandbox-escalation-fix-*.tgz' -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $releaseZip -Force -ErrorAction SilentlyContinue
 
-# 先重新构建 lib，再通过 npm 生成 tgz；任一外部命令失败都立即返回原退出码。
-npm run build
+# 先重新构建 lib，再通过 npm 生成 tgz；显式调用 npm.cmd，避免嵌套 PowerShell 误解析 npm.ps1 包装器。
+# 两个外部命令都检查原始退出码，构建或打包任一步失败时立即终止，不生成伪成功的 Release ZIP。
+& npm.cmd run build
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-npm pack --pack-destination .\release
+& npm.cmd pack --pack-destination .\release
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if (-not (Test-Path -LiteralPath $releaseTarball -PathType Leaf)) { throw "Expected release tarball was not generated: $releaseTarball" }
 
@@ -31,7 +32,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 Add-Type -AssemblyName System.IO.Compression
 $archive = [System.IO.Compression.ZipFile]::Open($releaseZip, [System.IO.Compression.ZipArchiveMode]::Create)
 try {
-  foreach ($name in @('dsh-sandbox-escalation-fix-0.1.6-alpha1-win-linux.tgz', 'install-release.ps1', 'uninstall-release.ps1', 'install-release.sh', 'uninstall-release.sh', 'RELEASE-USAGE.zh.md')) {
+  foreach ($name in @('dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux.tgz', 'install-release.ps1', 'uninstall-release.ps1', 'install-release.sh', 'uninstall-release.sh', 'RELEASE-USAGE.zh.md')) {
     $source = Join-Path $PSScriptRoot "release\$name"
     [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($archive, $source, $name, [System.IO.Compression.CompressionLevel]::Optimal) | Out-Null
   }
@@ -40,5 +41,5 @@ try {
 }
 if (-not (Test-Path -LiteralPath $releaseZip -PathType Leaf)) { throw 'Release ZIP was not generated.' }
 
-Write-Output 'Release bundle created: .\release\dsh-sandbox-escalation-fix-0.1.6-alpha1-win-linux-release.zip'
+Write-Output 'Release bundle created: .\release\dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux-release.zip'
 exit $LASTEXITCODE

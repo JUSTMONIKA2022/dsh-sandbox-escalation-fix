@@ -1,4 +1,4 @@
-# dsh-sandbox-escalation-fix (DSH 0.1.6-alpha.1 supported, Win & Linux & macOS)
+# dsh-sandbox-escalation-fix (DSH 0.1.6-alpha.2 supported, Win & Linux & macOS)
 
 English | [简体中文](README.zh.md)
 
@@ -6,10 +6,10 @@ English | [简体中文](README.zh.md)
 > This is an independent community plugin. It is not published, maintained, or endorsed by DeepSeek, and it does not modify DeepSeek Harness core packages.
 
 > [!CAUTION]
-> The DSH official team has made some improvements spanning from `DSH 0.1.0-rc8` through `0.1.6-alpha.1`, but still uses registry-global escalation schemas and execution-time validation. **Users should first observe the built-in behavior and install this plugin only after reproducing the same-mode escalation, blank justification, or retry-loop failures described below.**
+> DSH `0.1.6-alpha.2` now returns immediately for an escalation request that equals the call's effective mode, avoiding redundant approval. However, escalation schemas remain registry-global, the target vocabulary remains static, and genuinely wider requests are still validated at execution time. **Users should first observe the built-in behavior and install this plugin only after reproducing blank justification, impossible escalation advertising, or retry-loop failures described below.**
 
 > Currently supported:<br>
-> Latest supported DSH version: `0.1.6-alpha.1` (full list in [Compatibility](#compatibility))<br>
+> Latest supported DSH version: `0.1.6-alpha.2` (full list in [Compatibility](#compatibility))<br>
 > Desktop version: `2.0.3`<br>
 > OS: `Windows` & `Linux`  & `macOS` (theoretically supported, not yet tested)
 >  
@@ -101,12 +101,12 @@ After installation, the same model can continue through Edit, Read, Pwsh, format
 ## Compatibility
 
 - Node.js `^22.19.0` or `>=24.0.0`
-- `@deepseek-ai/dsh-*` `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, or `0.1.5-rc.2`
+- `@deepseek-ai/dsh-*` `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, `0.1.5-rc.2`, `0.1.6-alpha.1`, or `0.1.6-alpha.2`
 - `@deepseek-ai/cordis` `^4.0.1`
-- Distribution: public npm Registry (package `dsh-sandbox-escalation-fix`, prereleases under the `next` dist-tag), GitHub Release ZIP, local `.tgz`, local directory, or a Git commit
+- Distribution: public npm Registry (package `dsh-sandbox-escalation-fix`; `latest` and `next` point to the newest compatible release), GitHub Release ZIP, local `.tgz`, local directory, or a Git commit
 - Operating systems: Windows (fully supported), Linux (verified on real Ubuntu 24.04), and macOS (expected compatible — the plugin is pure JavaScript and the `.sh` scripts are POSIX — but not yet tested on a real Mac). The plugin itself has no platform-specific code; actual sandbox enforcement on Linux/macOS depends on the sandbox backends available to the DSH host (Linux: `bwrap` or a Landlock-enforcing kernel 5.13+; macOS: Seatbelt), probed at runtime by DSH itself. When no backend is usable, DSH refuses to run the command rather than bypassing the sandbox. The plugin's permission projection and argument normalization do not depend on any particular backend.
 
-The plugin checks the installed DSH package versions at startup. Mixed rc.5/rc.6/rc.7/rc.8/0.1.1-rc.1/0.1.1-rc.2/0.1.2-alpha.1/0.1.2-alpha.2/0.1.2-alpha.3/0.1.2-alpha.4/0.1.2-alpha.5/0.1.2-rc.1/0.1.3-alpha.1/0.1.3-alpha.2/0.1.5-alpha.1/0.1.5-alpha.2/0.1.5-rc.1/0.1.5-rc.2 installations and unknown DSH versions fail explicitly. An initially visible target with partial escalation fields or an incompatible output definition rejects that Agent's registration; a target that omits both escalation fields is accepted as already safe. During runtime, a Preset restriction or stable provider removal makes the wrapper dormant, while an incompatible replacement is isolated to that Agent and target tool and reported without terminating the Host process. A later compatible definition is wrapped automatically.
+The plugin checks the installed DSH package versions at startup. Mixed installations through `0.1.6-alpha.2` and unknown DSH versions fail explicitly. An initially visible target with partial escalation fields or an incompatible output definition rejects that Agent's registration; a target that omits both escalation fields is accepted as already safe. During runtime, a Preset restriction or stable provider removal makes the wrapper dormant, while an incompatible replacement is isolated to that Agent and target tool and reported without terminating the Host process. A later compatible definition is wrapped automatically.
 
 ## Quick Start & Installation
 
@@ -120,31 +120,31 @@ You do not need to change the model configuration, Sandbox Mode, Approval Policy
 
 ### Install from the npm Registry (recommended)
 
-The plugin is published to the public npm Registry as `dsh-sandbox-escalation-fix`. Current prereleases are published under the `next` dist-tag, while `latest` remains on the previous default release until a stable version is published. Install with an explicit `@next` or a pinned version so the selected channel is unambiguous.
+The plugin is published to the public npm Registry as `dsh-sandbox-escalation-fix`. Both `latest` and `next` point to the newest compatible release. Use `@latest` for the default channel, `@next` when you explicitly want the prerelease channel, or pin the exact version.
 
 ```sh
-dsh plugin --profile web add dsh-sandbox-escalation-fix@next
+dsh plugin --profile web add dsh-sandbox-escalation-fix@latest
 ```
 
 For another Profile, replace `web`:
 
 ```sh
-dsh plugin --profile headless add dsh-sandbox-escalation-fix@next
+dsh plugin --profile headless add dsh-sandbox-escalation-fix@latest
 ```
 
 To pin the exact version instead of following the tag:
 
 ```sh
-dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.6-alpha1-win-linux
+dsh plugin --profile web add dsh-sandbox-escalation-fix@0.1.6-alpha2-win-linux
 ```
 
 The npm package and the `.tgz` inside the GitHub Release ZIP come from the same build, so they behave identically. Restart DSH after installation.
 
 ### Release ZIP installation
 
-The `0.1.5-rc2-win-linux` Release adds DSH `0.1.5-rc.2` compatibility. `0.1.5-rc.2` is byte-for-byte identical to `0.1.5-rc.1` across all 15 plugin-relevant published packages (Agent, LLM, Sandbox, Sandbox Policy, Scope, Session, Session Projection, System Prompt, Tools, Approval, Code Runtime, Tool Bash, Tool Pwsh, Tool FS, and Shell; 228 files each, 0 differences other than `package.json`, which only bumps each package dependency range), so the sandbox escalation schema and execution-time widening checks are untouched and no core plugin change is needed. This Release keeps DSH `0.1.5-alpha.1` support (Session V3, removal of `ctx.agent`, and the Inbox API changes do not affect this plugin) and passes all 40 tests and the TypeScript build against the complete public `0.1.5-rc.2` npm package set. It retains Windows and Ubuntu 24.04 Linux support, expected macOS compatibility, Desktop 2.0.3, linked/external plugin resolution, prepare-free Git installation, and the BOM-free configuration. Download `dsh-sandbox-escalation-fix-0.1.5-rc2-win-linux-release.zip`; it contains the tarball, install/uninstall scripts for Windows and POSIX shells, and the Chinese usage guide.
+The `0.1.6-alpha2-win-linux` Release adds DSH `0.1.6-alpha.2` compatibility. The official release now returns immediately when a requested sandbox mode equals the call's effective mode, but its model-visible escalation schema remains registry-global and its escalation target vocabulary remains static. A file-by-file SHA-256 comparison of the 15 new-generation npm packages found no added or removed files; the changed Sandbox implementation preserves registry-global schemas and execution-time strict-widening validation, while Agent, Tools, Sandbox Policy, and Pwsh production contracts relevant to this plugin remain compatible. Therefore no Supervisor, Wrapper, schema-projection, or argument-normalization change is required. Download `dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux-release.zip`; it contains the tarball, install/uninstall scripts for Windows and POSIX shells, and the Chinese usage guide.
 
-Close DSH before installing or upgrading the plugin. Ensure that `dsh` is available on PATH and that the running DSH version is rc5, rc6, rc7, rc8, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, or `0.1.5-rc.2`. Users should install only after reproducing the affected behavior.
+Close DSH before installing or upgrading the plugin. Ensure that `dsh` is available on PATH and that all checked `@deepseek-ai/dsh-*` packages use one supported version through `0.1.6-alpha.2`. Users should install only after reproducing the affected behavior.
 
 #### Install into the default Web Profile
 
@@ -182,7 +182,7 @@ sh ./install-release.sh headless
 powershell -NoProfile -ExecutionPolicy Bypass -File ".\build-release.ps1"
 ```
 
-The script builds `lib`, packages the npm tarball, then creates `dsh-sandbox-escalation-fix-0.1.5-rc2-win-linux-release.zip` in `release/`. The generated directory is ignored by Git; upload only this ZIP as the GitHub Release asset.
+The script builds `lib`, packages the npm tarball, then creates `dsh-sandbox-escalation-fix-0.1.6-alpha2-win-linux-release.zip` in `release/`. The generated directory is ignored by Git; upload only this ZIP as the GitHub Release asset.
 
 ### Command-line installation
 
@@ -384,11 +384,11 @@ The plugin listens to Agent creation, disposal, Preset changes, restrictions, an
 
 ### It won't lock you to a single DSH release
 
-The plugin supports DSH `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, `0.1.5-rc.2`, and `0.1.6-alpha.1`. At startup it verifies that the installed `@deepseek-ai/dsh-*` packages are consistent and supported. Incompatible tool definitions fail explicitly instead of producing silent misbehavior.
+The plugin supports DSH `0.1.0-rc.5`, `0.1.0-rc.6`, `0.1.0-rc.7`, `0.1.0-rc.8`, `0.1.1-rc.1`, `0.1.1-rc.2`, `0.1.2-alpha.1`, `0.1.2-alpha.2`, `0.1.2-alpha.3`, `0.1.2-alpha.4`, `0.1.2-alpha.5`, `0.1.2-rc.1`, `0.1.3-alpha.1`, `0.1.3-alpha.2`, `0.1.5-alpha.1`, `0.1.5-alpha.2`, `0.1.5-rc.1`, `0.1.5-rc.2`, `0.1.6-alpha.1`, and `0.1.6-alpha.2`. At startup it verifies that the installed `@deepseek-ai/dsh-*` packages are consistent and supported. Incompatible tool definitions fail explicitly instead of producing silent misbehavior.
 
 ### It won't add configuration burden
 
-Zero configuration. Install it into the Profile you actually use and start DSH as before. The 40-test suite runs directly against the complete public `0.1.5-rc.2` package set, and the 15 plugin-relevant packages of `0.1.5-rc.1` and `0.1.5-rc.2` have been compared file by file. It covers schema projection, false workspace-file escalation normalization, out-of-workspace and unconfirmed-root preservation, PTC Mode metadata, dynamic restrictions, multi-Agent isolation, delegate and wrapper-protocol replacement, internal timeout-budget forwarding, failure-hint cleanup, and unload behavior.
+Zero configuration. Install it into the Profile you actually use and start DSH as before. The 40-test suite and TypeScript build run against the complete public `0.1.6-alpha.2` development dependency set. The 15 new-generation packages of `0.1.6-alpha.1` and `0.1.6-alpha.2` were compared file by file with SHA-256, and the changed Sandbox contract was reviewed directly. Tests cover schema projection, false workspace-file escalation normalization, out-of-workspace and unconfirmed-root preservation, PTC Mode metadata, dynamic restrictions, multi-Agent isolation, delegate and wrapper-protocol replacement, internal timeout-budget forwarding, failure-hint cleanup, and unload behavior.
 
 ### Compared with execution-only normalization
 
