@@ -6,7 +6,9 @@ English | [简体中文](README.zh.md)
 > This is an independent community plugin. It is not published, maintained, or endorsed by DeepSeek, and it does not modify DeepSeek Harness core packages.
 
 > [!CAUTION]
-> DSH `0.1.6-alpha.2` now returns immediately for an escalation request that equals the call's effective mode, avoiding redundant approval. However, escalation schemas remain registry-global, the target vocabulary remains static, and genuinely wider requests are still validated at execution time. **Users should first observe the built-in behavior and install this plugin only after reproducing blank justification, impossible escalation advertising, or retry-loop failures described below.**
+> DSH `0.1.6-alpha.2` has significantly mitigated the issue addressed by this plugin. In testing, a model may still fail its first tool call because of unsuitable sandbox-escalation arguments, but it will usually adjust those arguments after receiving the error and eventually complete the call successfully. Escalation schemas remain registry-global and are still not narrowed according to each Session's current permissions, so the underlying cause has not been fully removed. However, users who can tolerate a small number of retries and some additional token usage may now find the official behavior acceptable. **Users should try the official behavior first and install this plugin only when the remaining retries, overhead, or instability are unacceptable.**
+>
+> **Given the current effectiveness of the official improvements, this plugin may stop being maintained after the next official release. If you still need this plugin to be maintained at that time, please proactively open an issue, and the developer will respond as soon as possible.**
 
 > Currently supported:<br>
 > Latest supported DSH version: `0.1.6-alpha.2` (full list in [Compatibility](#compatibility))<br>
